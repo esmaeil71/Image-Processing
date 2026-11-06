@@ -1,0 +1,49 @@
+[
+  {
+    "id": "ct-nifti-classical-otsu-v1",
+    "name": "CT NIfTI — classical Otsu foreground (non-ML)",
+    "version": "1.0.0",
+    "source_url": "",
+    "license_text": "In-process classical thresholding — no learned weights.",
+    "weights_sha256": null,
+    "allowed_modalities": ["CT", "UNKNOWN"],
+    "allowed_body_parts": [""],
+    "input_requirements": {
+      "must_be_nifti": true,
+      "inference_engine": "classical_otsu_nifti",
+      "min_dims_zyx": [4, 8, 8],
+      "max_voxels": 500000000,
+      "notes": "Foreground mask via Otsu threshold after z-score normalize — research preview only, not anatomical segmentation."
+    },
+    "output_classes": [{ "id": 1, "label": "foreground", "description": "Otsu-separated high-intensity region" }],
+    "preprocess": { "normalize": "z-score" },
+    "constraints_text": "Non-ML classical segmentation for NIfTI volumes on CPU. Not for clinical diagnosis.",
+    "bundle_path": null,
+    "is_active": true
+  },
+  {
+    "id": "ct-lung-rough-v0",
+    "name": "CT volume rough foreground (research placeholder)",
+    "version": "0.0.0",
+    "source_url": "https://docs.monai.io/en/stable/bundle_intro.html",
+    "license_text": "Replace with actual model license when weights are pinned.",
+    "weights_sha256": null,
+    "allowed_modalities": ["CT"],
+    "allowed_body_parts": ["CHEST", "THORAX", ""],
+    "input_requirements": {
+      "min_dims_zyx": [8, 32, 32],
+      "max_voxels": 220000000,
+      "must_be_nifti": true,
+      "notes": "Requires a pinned MONAI bundle and validated weights on disk; disabled until configured."
+    },
+    "output_classes": [
+      { "id": 1, "label": "foreground", "description": "Rough mask — not clinical segmentation." }
+    ],
+    "preprocess": {
+      "normalize": "z-score"
+    },
+    "constraints_text": "Research-only rough volume mask when bundle + weights are present. Not for diagnosis.",
+    "bundle_path": null,
+    "is_active": false
+  }
+]

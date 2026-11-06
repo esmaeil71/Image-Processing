@@ -1,0 +1,22 @@
+{
+  "Name": "MedImage Orthanc",
+  "HttpPort": 8042,
+  "DicomModalities": {},
+  "Plugins": [
+    "/usr/share/orthanc/plugins/libOrthancDicomWeb.so",
+    "/usr/share/orthanc/plugins/libOrthancStone.so"
+  ],
+  "DicomWeb": {
+    "Enable": true,
+    "Root": "/dicom-web/",
+    "EnableMetadata": true,
+    "EnableFrames": true
+  },
+  "RemoteAccessAllowed": true,
+  "AuthenticationEnabled": true,
+  "RegisteredUsers": {
+    "orthanc": "orthanc_dev_change_me"
+  },
+  "StableAge": 1,
+  "StorageCompression": false
+}

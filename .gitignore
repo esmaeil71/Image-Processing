@@ -1,0 +1,13 @@
+node_modules/
+dist/
+__pycache__/
+*.pyc
+.venv/
+backend/.venv/
+worker/.venv/
+.env
+*.nii
+*.nii.gz
+.DS_Store
+coverage/
+.pytest_cache/
