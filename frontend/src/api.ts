@@ -47,7 +47,8 @@ export async function uploadStudy(file: File, title?: string) {
   const fd = new FormData();
   fd.append("file", file);
   if (title) fd.append("title", title);
-  const r = await api.post("/studies/upload", fd);
+  // Large medical files — long timeout (ms); 0 = no limit where supported
+  const r = await api.post("/studies/upload", fd, { timeout: 0 });
   return r.data;
 }
 
@@ -89,6 +90,6 @@ export async function jobResult(jobId: string) {
 export async function uploadUserMask(jobId: string, file: File) {
   const fd = new FormData();
   fd.append("file", file);
-  const r = await api.post(`/jobs/${jobId}/user-mask`, fd);
+  const r = await api.post(`/jobs/${jobId}/user-mask`, fd, { timeout: 0 });
   return r.data;
 }

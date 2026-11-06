@@ -2,6 +2,7 @@ import { FormEvent, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { uploadStudy } from "../api";
+import { formatApiError } from "../errors";
 
 export default function UploadPage() {
   const { t } = useTranslation();
@@ -17,8 +18,8 @@ export default function UploadPage() {
     try {
       const st = await uploadStudy(file, title || undefined);
       nav(`/study/${st.id}`);
-    } catch (ex: any) {
-      setMsg(ex?.response?.data?.detail || "Upload failed");
+    } catch (ex: unknown) {
+      setMsg(formatApiError(ex));
     }
   }
 

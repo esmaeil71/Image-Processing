@@ -14,7 +14,12 @@ export default defineConfig({
     host: "0.0.0.0",
     port: 5173,
     proxy: {
-      "/api": { target: apiProxyTarget, changeOrigin: true },
+      "/api": {
+        target: apiProxyTarget,
+        changeOrigin: true,
+        timeout: 600_000,
+        proxyTimeout: 600_000,
+      },
       "/health": { target: apiProxyTarget, changeOrigin: true },
     },
   },
