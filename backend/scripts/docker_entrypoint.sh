@@ -1,8 +1,17 @@
 #!/bin/sh
 set -e
 cd /app
-export ALEMBIC_DATABASE_URL="${DATABASE_URL/postgresql+asyncpg:\/\//postgresql://}"
+# POSIX sh (dash) — not bash — so use prefix strip, not ${VAR/pattern/rep}
+case "$DATABASE_URL" in
+  postgresql+asyncpg://*)
+    export ALEMBIC_DATABASE_URL="postgresql://${DATABASE_URL#postgresql+asyncpg://}"
+    ;;
+  *)
+    export ALEMBIC_DATABASE_URL="$DATABASE_URL"
+    ;;
+esac
 alembic upgrade head
-python -m app.seed || true
+# Admin must be created — do not swallow errors (was causing "Invalid credentials" with no user)
+python -m app.seed
 python /app/scripts/seed_models.py || true
 exec "$@"

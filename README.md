@@ -65,6 +65,19 @@ Research-oriented **MedImage Studio** is a locally runnable stack for uploading 
 
    Change `ADMIN_EMAIL` / `ADMIN_PASSWORD` in `.env` before production use. On each backend start, `ADMIN_SYNC_PASSWORD=true` (default) **updates** the admin password from `.env` so credentials match if you change them — set it to `false` in production.
 
+**If login still fails:** the backend container loads `.env` via `env_file`. Recreate and watch logs — seed must run without error (entrypoint no longer hides `app.seed` failures):
+
+```bash
+docker compose up -d --force-recreate backend
+docker compose logs backend --tail 50
+```
+
+Manual reset (creates or overwrites admin from env):
+
+```bash
+docker compose exec backend python /app/scripts/reset_admin.py
+```
+
 ## Supported flows
 
 ### DICOM
