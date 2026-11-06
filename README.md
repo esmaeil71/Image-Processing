@@ -30,7 +30,11 @@ Research-oriented **MedImage Studio** is a locally runnable stack for uploading 
 
 **MinIO image:** Official `minio/minio` on Docker Hub is no longer reliably pullable without login. This project uses **`cgr.dev/chainguard/minio:latest`** (built from MinIO source). The init job uses **`amazon/aws-cli`** to create the bucket instead of `minio/mc`.
 
-## Quick start (Docker Compose)
+**Redis:** The compose file does **not** publish Redis on the host (`6379`) so it does not clash with a system Redis. Services use `redis:6379` on the Docker network only.
+
+**Backend host port:** If something else uses **:8000**, set `BACKEND_HOST_PORT` (e.g. `18000`) in `.env`. The API is at `http://localhost:$BACKEND_HOST_PORT` for direct access and OpenAPI.
+
+**Frontend + API in Docker:** Leave `VITE_API_URL` empty. The UI at http://localhost:5173 sends requests to `/api/v1/...` on the same origin; Vite’s dev server **proxies** them to `http://backend:8000` inside the compose network (no browser port mismatch).
 
 1. Copy environment file:
 
@@ -49,7 +53,7 @@ Research-oriented **MedImage Studio** is a locally runnable stack for uploading 
 
 4. Wait for backend migrations (entrypoint runs `alembic upgrade head` + seeds):
 
-   - **API**: http://localhost:8000 — OpenAPI: http://localhost:8000/docs  
+   - **API**: `http://localhost:${BACKEND_HOST_PORT:-8000}` — OpenAPI: same host + `/docs`  
    - **UI**: http://localhost:5173  
    - **Orthanc**: http://localhost:8042 (user/pass from `ORTHANC_*` / `infra/orthanc/orthanc.json`)  
    - **MinIO console**: http://localhost:9001  
@@ -59,7 +63,7 @@ Research-oriented **MedImage Studio** is a locally runnable stack for uploading 
    - Email: `admin@medimage.local`  
    - Password: `ChangeMeAdmin123!`  
 
-   Change `ADMIN_EMAIL` / `ADMIN_PASSWORD` in `.env` before production use.
+   Change `ADMIN_EMAIL` / `ADMIN_PASSWORD` in `.env` before production use. On each backend start, `ADMIN_SYNC_PASSWORD=true` (default) **updates** the admin password from `.env` so credentials match if you change them — set it to `false` in production.
 
 ## Supported flows
 

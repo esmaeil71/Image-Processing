@@ -6,7 +6,8 @@ RUN npm install
 
 COPY . .
 
-ARG VITE_API_URL=http://localhost:8000
+# Default empty: dev server proxies /api to backend (see vite.config.ts)
+ARG VITE_API_URL=
 ARG VITE_ORTHANC_DICOMWEB=http://localhost:8042/dicom-web
 
 ENV VITE_API_URL=$VITE_API_URL

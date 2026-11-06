@@ -28,8 +28,8 @@ services:
       interval: 5s
       timeout: 3s
       retries: 10
-    ports:
-      - "6379:6379"
+    # No host port publish — avoids conflict with a local redis on :6379.
+    # Backend/worker reach Redis at hostname `redis:6379` on the compose network.
 
   orthanc:
     # Use a current tag that exists on Docker Hub (avoid stale/invalid tags).
@@ -111,6 +111,8 @@ services:
       UPLOAD_MAX_BYTES: ${UPLOAD_MAX_BYTES:-5368709120}
       ADMIN_EMAIL: ${ADMIN_EMAIL:-admin@medimage.local}
       ADMIN_PASSWORD: ${ADMIN_PASSWORD:-ChangeMeAdmin123!}
+      # If true, updates admin password on each backend start when ADMIN_EMAIL exists (dev convenience).
+      ADMIN_SYNC_PASSWORD: ${ADMIN_SYNC_PASSWORD:-true}
     depends_on:
       postgres:
         condition: service_healthy
@@ -121,7 +123,8 @@ services:
       minio:
         condition: service_healthy
     ports:
-      - "8000:8000"
+      # If host :8000 is busy, set BACKEND_HOST_PORT in .env (e.g. 18000)
+      - "${BACKEND_HOST_PORT:-8000}:8000"
     command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 
   worker:
@@ -158,7 +161,8 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
       args:
-        VITE_API_URL: ${VITE_API_URL:-http://localhost:8000}
+        # Dev UI uses Vite proxy; leave empty unless you build static assets with a fixed API URL.
+        VITE_API_URL: ${VITE_API_URL:-}
         VITE_ORTHANC_DICOMWEB: ${VITE_ORTHANC_DICOMWEB:-http://localhost:8042/dicom-web}
     volumes:
       - ./frontend:/app
@@ -166,7 +170,9 @@ services:
     ports:
       - "5173:5173"
     environment:
-      VITE_API_URL: ${VITE_API_URL:-http://localhost:8000}
+      # Empty VITE_API_URL → browser calls /api/* on :5173, proxied to backend:8000
+      VITE_API_URL: ${VITE_API_URL:-}
+      API_PROXY_TARGET: http://backend:8000
       VITE_ORTHANC_DICOMWEB: ${VITE_ORTHANC_DICOMWEB:-http://localhost:8042/dicom-web}
     depends_on:
       - backend

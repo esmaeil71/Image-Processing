@@ -11,14 +11,23 @@ from app.models import User
 from app.security import get_password_hash
 
 
+def _env_truthy(name: str, default: str = "true") -> bool:
+    return os.environ.get(name, default).strip().lower() in ("1", "true", "yes", "on")
+
+
 async def seed_admin() -> None:
     email = os.environ.get("ADMIN_EMAIL")
     password = os.environ.get("ADMIN_PASSWORD")
     if not email or not password:
         return
+    sync_password = _env_truthy("ADMIN_SYNC_PASSWORD", "true")
     async with AsyncSessionLocal() as db:
         r = await db.execute(select(User).where(User.email == email))
-        if r.scalar_one_or_none():
+        existing = r.scalar_one_or_none()
+        if existing:
+            if sync_password:
+                existing.hashed_password = get_password_hash(password)
+                await db.commit()
             return
         u = User(
             email=email,

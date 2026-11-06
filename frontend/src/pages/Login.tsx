@@ -17,8 +17,17 @@ export default function Login() {
       const r = await login(email, password);
       setAuth(r.access_token);
       nav("/", { replace: true });
-    } catch {
-      setErr("Invalid credentials");
+    } catch (e: unknown) {
+      const ax = e as { response?: { data?: { detail?: string } }; message?: string };
+      const detail = ax.response?.data?.detail;
+      const net = ax.message;
+      setErr(
+        typeof detail === "string"
+          ? detail
+          : net && (net.includes("Network") || net.includes("ERR_"))
+            ? "Cannot reach API — check VITE_API_URL matches backend URL/port."
+            : "Invalid credentials"
+      );
     }
   }
 
